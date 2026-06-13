@@ -32,11 +32,9 @@ class SpeechService {
       onResult: (r) => onResult(r.recognizedWords, r.finalResult),
       listenFor: const Duration(seconds: 30),
       pauseFor: const Duration(seconds: 4),
-      listenOptions: SpeechListenOptions(
-        partialResults: true,
-        cancelOnError: true,
-        listenMode: ListenMode.confirmation,
-      ),
+      partialResults: true,
+      cancelOnError: true,
+      listenMode: ListenMode.confirmation,
     );
   }
 
