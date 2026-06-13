@@ -1,0 +1,42 @@
+name: my_assistant
+description: "Personal voice-driven assistant with tasks, reminders, and LLM chat. Builds for Android (APK) and Web (PWA)."
+publish_to: 'none'
+version: 0.2.0+2
+
+environment:
+  sdk: ">=3.3.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.6
+
+  # Cross-platform storage (works on Android + Web)
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  flutter_secure_storage: ^9.2.2
+
+  # Notifications — mobile only; web has its own impl via dart:html
+  flutter_local_notifications: ^17.2.2
+  timezone: ^0.9.4
+  flutter_timezone: ^3.0.1
+  permission_handler: ^11.3.1
+
+  # Voice
+  speech_to_text: ^7.0.0
+  flutter_tts: ^4.0.2
+
+  # LLM
+  google_generative_ai: ^0.4.6
+  http: ^1.2.2
+
+  # Utilities
+  intl: ^0.19.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
