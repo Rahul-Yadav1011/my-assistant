@@ -35,20 +35,52 @@ jobs:
       - name: Apply custom AndroidManifest
         run: cp android_overrides/AndroidManifest.xml android/app/src/main/AndroidManifest.xml
 
-      - name: Patch android/app/build.gradle.kts
+      - name: Patch app gradle file (handles both .kts and .gradle)
         run: |
-          GRADLE_FILE=android/app/build.gradle.kts
-          sed -i 's/minSdk = flutter.minSdkVersion/minSdk = 23/g' $GRADLE_FILE
-          sed -i 's/minSdkVersion flutter.minSdkVersion/minSdk = 23/g' $GRADLE_FILE
-          if ! grep -q "isCoreLibraryDesugaringEnabled" $GRADLE_FILE; then
-            sed -i '/compileOptions {/a\        isCoreLibraryDesugaringEnabled = true' $GRADLE_FILE
+          if [ -f "android/app/build.gradle.kts" ]; then
+            GRADLE_FILE="android/app/build.gradle.kts"
+            echo "Detected Kotlin DSL: $GRADLE_FILE"
+
+            sed -i 's/minSdk = flutter.minSdkVersion/minSdk = 23/g' "$GRADLE_FILE"
+
+            if ! grep -q "isCoreLibraryDesugaringEnabled" "$GRADLE_FILE"; then
+              sed -i '/compileOptions {/a\        isCoreLibraryDesugaringEnabled = true' "$GRADLE_FILE"
+            fi
+
+            if ! grep -q "desugar_jdk_libs" "$GRADLE_FILE"; then
+              echo "" >> "$GRADLE_FILE"
+              echo "dependencies {" >> "$GRADLE_FILE"
+              echo '    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")' >> "$GRADLE_FILE"
+              echo "}" >> "$GRADLE_FILE"
+            fi
+
+          elif [ -f "android/app/build.gradle" ]; then
+            GRADLE_FILE="android/app/build.gradle"
+            echo "Detected Groovy DSL: $GRADLE_FILE"
+
+            sed -i 's/minSdk flutter.minSdkVersion/minSdk 23/g' "$GRADLE_FILE"
+            sed -i 's/minSdkVersion flutter.minSdkVersion/minSdkVersion 23/g' "$GRADLE_FILE"
+
+            if ! grep -q "coreLibraryDesugaringEnabled" "$GRADLE_FILE"; then
+              sed -i '/compileOptions {/a\        coreLibraryDesugaringEnabled true' "$GRADLE_FILE"
+            fi
+
+            if ! grep -q "desugar_jdk_libs" "$GRADLE_FILE"; then
+              echo "" >> "$GRADLE_FILE"
+              echo "dependencies {" >> "$GRADLE_FILE"
+              echo "    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.4'" >> "$GRADLE_FILE"
+              echo "}" >> "$GRADLE_FILE"
+            fi
+
+          else
+            echo "ERROR: Neither build.gradle.kts nor build.gradle found in android/app/"
+            echo "--- Contents of android/app/ ---"
+            ls -la android/app/
+            exit 1
           fi
-          if ! grep -q "desugar_jdk_libs" $GRADLE_FILE; then
-            echo "" >> $GRADLE_FILE
-            echo "dependencies {" >> $GRADLE_FILE
-            echo '    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")' >> $GRADLE_FILE
-            echo "}" >> $GRADLE_FILE
-          fi
+
+          echo "---- Patched gradle file ----"
+          cat "$GRADLE_FILE"
 
       - name: flutter pub get
         run: flutter pub get
