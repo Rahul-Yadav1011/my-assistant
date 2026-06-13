@@ -41,11 +41,18 @@ jobs:
             GRADLE_FILE="android/app/build.gradle.kts"
             echo "Detected Kotlin DSL: $GRADLE_FILE"
 
-            # Pin minSdk for plugin compatibility
-            sed -i 's/minSdk = flutter.minSdkVersion/minSdk = 23/g' "$GRADLE_FILE"
+            # minSdk 24 (required by flutter_tts)
+            sed -i 's/minSdk = flutter.minSdkVersion/minSdk = 24/g' "$GRADLE_FILE"
 
-            # Bump compileSdk to 35 for flutter_tts
-            sed -i 's/compileSdk = flutter.compileSdkVersion/compileSdk = 35/g' "$GRADLE_FILE"
+            # compileSdk 36 (required by flutter_tts)
+            sed -i 's/compileSdk = flutter.compileSdkVersion/compileSdk = 36/g' "$GRADLE_FILE"
+
+            # NDK 27.0.12077973 (required by several plugins)
+            sed -i 's|ndkVersion = flutter.ndkVersion|ndkVersion = "27.0.12077973"|g' "$GRADLE_FILE"
+            # Fallback: add ndkVersion if missing entirely
+            if ! grep -q "ndkVersion" "$GRADLE_FILE"; then
+              sed -i '/compileSdk =/a\    ndkVersion = "27.0.12077973"' "$GRADLE_FILE"
+            fi
 
             # Enable desugaring (needed by flutter_local_notifications)
             if ! grep -q "isCoreLibraryDesugaringEnabled" "$GRADLE_FILE"; then
@@ -63,10 +70,15 @@ jobs:
             GRADLE_FILE="android/app/build.gradle"
             echo "Detected Groovy DSL: $GRADLE_FILE"
 
-            sed -i 's/minSdk flutter.minSdkVersion/minSdk 23/g' "$GRADLE_FILE"
-            sed -i 's/minSdkVersion flutter.minSdkVersion/minSdkVersion 23/g' "$GRADLE_FILE"
-            sed -i 's/compileSdk flutter.compileSdkVersion/compileSdk 35/g' "$GRADLE_FILE"
-            sed -i 's/compileSdkVersion flutter.compileSdkVersion/compileSdkVersion 35/g' "$GRADLE_FILE"
+            sed -i 's/minSdk flutter.minSdkVersion/minSdk 24/g' "$GRADLE_FILE"
+            sed -i 's/minSdkVersion flutter.minSdkVersion/minSdkVersion 24/g' "$GRADLE_FILE"
+            sed -i 's/compileSdk flutter.compileSdkVersion/compileSdk 36/g' "$GRADLE_FILE"
+            sed -i 's/compileSdkVersion flutter.compileSdkVersion/compileSdkVersion 36/g' "$GRADLE_FILE"
+            sed -i 's|ndkVersion flutter.ndkVersion|ndkVersion "27.0.12077973"|g' "$GRADLE_FILE"
+
+            if ! grep -q "ndkVersion" "$GRADLE_FILE"; then
+              sed -i '/compileSdk/a\    ndkVersion "27.0.12077973"' "$GRADLE_FILE"
+            fi
 
             if ! grep -q "coreLibraryDesugaringEnabled" "$GRADLE_FILE"; then
               sed -i '/compileOptions {/a\        coreLibraryDesugaringEnabled true' "$GRADLE_FILE"
