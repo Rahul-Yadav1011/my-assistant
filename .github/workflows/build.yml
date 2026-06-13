@@ -22,7 +22,7 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-          flutter-version: '3.24.0'
+          flutter-version: '3.29.0'
           cache: true
 
       - name: Generate android folder
@@ -35,14 +35,19 @@ jobs:
       - name: Apply custom AndroidManifest
         run: cp android_overrides/AndroidManifest.xml android/app/src/main/AndroidManifest.xml
 
-      - name: Patch app gradle file (handles both .kts and .gradle)
+      - name: Patch app gradle file
         run: |
           if [ -f "android/app/build.gradle.kts" ]; then
             GRADLE_FILE="android/app/build.gradle.kts"
             echo "Detected Kotlin DSL: $GRADLE_FILE"
 
+            # Pin minSdk for plugin compatibility
             sed -i 's/minSdk = flutter.minSdkVersion/minSdk = 23/g' "$GRADLE_FILE"
 
+            # Bump compileSdk to 35 for flutter_tts
+            sed -i 's/compileSdk = flutter.compileSdkVersion/compileSdk = 35/g' "$GRADLE_FILE"
+
+            # Enable desugaring (needed by flutter_local_notifications)
             if ! grep -q "isCoreLibraryDesugaringEnabled" "$GRADLE_FILE"; then
               sed -i '/compileOptions {/a\        isCoreLibraryDesugaringEnabled = true' "$GRADLE_FILE"
             fi
@@ -60,6 +65,8 @@ jobs:
 
             sed -i 's/minSdk flutter.minSdkVersion/minSdk 23/g' "$GRADLE_FILE"
             sed -i 's/minSdkVersion flutter.minSdkVersion/minSdkVersion 23/g' "$GRADLE_FILE"
+            sed -i 's/compileSdk flutter.compileSdkVersion/compileSdk 35/g' "$GRADLE_FILE"
+            sed -i 's/compileSdkVersion flutter.compileSdkVersion/compileSdkVersion 35/g' "$GRADLE_FILE"
 
             if ! grep -q "coreLibraryDesugaringEnabled" "$GRADLE_FILE"; then
               sed -i '/compileOptions {/a\        coreLibraryDesugaringEnabled true' "$GRADLE_FILE"
@@ -73,35 +80,13 @@ jobs:
             fi
 
           else
-            echo "ERROR: Neither build.gradle.kts nor build.gradle found in android/app/"
+            echo "ERROR: No gradle file found in android/app/"
             ls -la android/app/
             exit 1
           fi
 
           echo "---- Patched gradle file ----"
           cat "$GRADLE_FILE"
-
-      - name: Patch Kotlin version in settings.gradle
-        run: |
-          SETTINGS_FILE=""
-          if [ -f "android/settings.gradle.kts" ]; then
-            SETTINGS_FILE="android/settings.gradle.kts"
-          elif [ -f "android/settings.gradle" ]; then
-            SETTINGS_FILE="android/settings.gradle"
-          fi
-
-          if [ -n "$SETTINGS_FILE" ]; then
-            echo "Patching Kotlin version in $SETTINGS_FILE"
-            # Bump Kotlin plugin to 1.9.24 (handles both Groovy and Kotlin DSL syntax)
-            sed -i 's/org\.jetbrains\.kotlin\.android" version "[^"]*"/org.jetbrains.kotlin.android" version "1.9.24"/g' "$SETTINGS_FILE"
-            sed -i 's/org\.jetbrains\.kotlin\.android") version "[^"]*"/org.jetbrains.kotlin.android") version "1.9.24"/g' "$SETTINGS_FILE"
-
-            echo "---- Patched $SETTINGS_FILE ----"
-            cat "$SETTINGS_FILE"
-          else
-            echo "WARNING: No settings.gradle file found"
-            ls -la android/
-          fi
 
       - name: flutter pub get
         run: flutter pub get
