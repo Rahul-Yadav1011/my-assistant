@@ -1,7 +1,7 @@
 name: mitra
 description: "Mitra — your personal voice-driven assistant."
 publish_to: 'none'
-version: 0.5.0+7
+version: 0.5.1+8
 
 environment:
   sdk: ">=3.3.0 <4.0.0"
@@ -24,7 +24,7 @@ dependencies:
   http: ^1.2.2
   webfeed_revised: ^0.7.1
   url_launcher: ^6.3.0
-  intl: ^0.19.0
+  intl: ^0.18.1
 
 dev_dependencies:
   flutter_test:
