@@ -28,8 +28,8 @@ jobs:
       - name: Generate android folder
         run: |
           flutter create . \
-            --project-name my_assistant \
-            --org com.example \
+            --project-name mitra \
+            --org com.mitra \
             --platforms android
 
       - name: Apply custom AndroidManifest
@@ -41,20 +41,13 @@ jobs:
             GRADLE_FILE="android/app/build.gradle.kts"
             echo "Detected Kotlin DSL: $GRADLE_FILE"
 
-            # minSdk 24 (required by flutter_tts)
             sed -i 's/minSdk = flutter.minSdkVersion/minSdk = 24/g' "$GRADLE_FILE"
-
-            # compileSdk 36 (required by flutter_tts)
             sed -i 's/compileSdk = flutter.compileSdkVersion/compileSdk = 36/g' "$GRADLE_FILE"
-
-            # NDK 27.0.12077973 (required by several plugins)
             sed -i 's|ndkVersion = flutter.ndkVersion|ndkVersion = "27.0.12077973"|g' "$GRADLE_FILE"
-            # Fallback: add ndkVersion if missing entirely
             if ! grep -q "ndkVersion" "$GRADLE_FILE"; then
               sed -i '/compileSdk =/a\    ndkVersion = "27.0.12077973"' "$GRADLE_FILE"
             fi
 
-            # Enable desugaring (needed by flutter_local_notifications)
             if ! grep -q "isCoreLibraryDesugaringEnabled" "$GRADLE_FILE"; then
               sed -i '/compileOptions {/a\        isCoreLibraryDesugaringEnabled = true' "$GRADLE_FILE"
             fi
@@ -65,7 +58,6 @@ jobs:
               echo '    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")' >> "$GRADLE_FILE"
               echo "}" >> "$GRADLE_FILE"
             fi
-
           elif [ -f "android/app/build.gradle" ]; then
             GRADLE_FILE="android/app/build.gradle"
             echo "Detected Groovy DSL: $GRADLE_FILE"
@@ -90,18 +82,20 @@ jobs:
               echo "    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.4'" >> "$GRADLE_FILE"
               echo "}" >> "$GRADLE_FILE"
             fi
-
           else
             echo "ERROR: No gradle file found in android/app/"
             ls -la android/app/
             exit 1
           fi
 
-          echo "---- Patched gradle file ----"
+          echo "---- Final gradle ----"
           cat "$GRADLE_FILE"
 
       - name: flutter pub get
         run: flutter pub get
+
+      - name: Generate launcher icons
+        run: dart run flutter_launcher_icons
 
       - name: Build release APK
         run: flutter build apk --release
@@ -109,6 +103,6 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: app-release-apk
+          name: mitra-apk
           path: build/app/outputs/flutter-apk/app-release.apk
           retention-days: 30

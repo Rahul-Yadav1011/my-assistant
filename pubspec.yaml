@@ -1,7 +1,7 @@
-name: my_assistant
-description: "Personal voice-driven assistant with tasks, reminders, and LLM chat."
+name: mitra
+description: "Mitra — your personal voice-driven assistant."
 publish_to: 'none'
-version: 0.3.1+5
+version: 0.5.0+7
 
 environment:
   sdk: ">=3.3.0 <4.0.0"
@@ -10,34 +10,36 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.6
-
-  # Cross-platform storage
   hive: ^2.2.3
   hive_flutter: ^1.1.0
   flutter_secure_storage: ^9.2.2
-
-  # Notifications
+  shared_preferences: ^2.2.3
   flutter_local_notifications: ^17.2.2
   timezone: ^0.9.4
   flutter_timezone: ^3.0.1
   permission_handler: ^11.3.1
-
-  # Voice
   speech_to_text: ^7.0.0
-  # Cap flutter_tts below 4.2.0 — 4.2.x needs Kotlin 2.x which is newer than Flutter 3.29 ships
   flutter_tts: ">=4.0.0 <4.2.0"
-
-  # LLM
   google_generative_ai: ^0.4.6
   http: ^1.2.2
-
-  # Utilities
+  webfeed_revised: ^0.7.1
+  url_launcher: ^6.3.0
   intl: ^0.19.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^4.0.0
+  flutter_launcher_icons: ^0.13.1
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/icon.png
+
+flutter_launcher_icons:
+  android: true
+  ios: false
+  image_path: "assets/icon.png"
+  adaptive_icon_background: "#1a1033"
+  adaptive_icon_foreground: "assets/icon_foreground.png"

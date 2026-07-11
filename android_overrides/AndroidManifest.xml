@@ -1,28 +1,13 @@
-<!--
-  After running `flutter create .`, REPLACE the contents of
-  android/app/src/main/AndroidManifest.xml with this file.
-  Then change the package name in the <application> attributes if you want.
--->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- Internet for LLM calls -->
     <uses-permission android:name="android.permission.INTERNET" />
-
-    <!-- Microphone for speech-to-text -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
-
-    <!-- Notifications (Android 13+) -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-
-    <!-- Reminders even when device is idle -->
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-
-    <!-- Reschedule notifications after reboot -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
-    <!-- speech_to_text checks for a speech service -->
     <queries>
         <intent>
             <action android:name="android.speech.RecognitionService" />
@@ -30,10 +15,18 @@
         <intent>
             <action android:name="android.intent.action.TTS_SERVICE" />
         </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="https" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="http" />
+        </intent>
     </queries>
 
     <application
-        android:label="My Assistant"
+        android:label="Mitra"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
@@ -55,7 +48,6 @@
             </intent-filter>
         </activity>
 
-        <!-- flutter_local_notifications receivers -->
         <receiver android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver"
             android:exported="false" />
         <receiver android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver"

@@ -14,7 +14,6 @@ class NotificationService {
 
   Future<void> init() async {
     if (_initialized) return;
-
     tzdata.initializeTimeZones();
     try {
       final localTz = await FlutterTimezone.getLocalTimezone();
@@ -30,10 +29,8 @@ class NotificationService {
     if (await Permission.notification.isDenied) {
       await Permission.notification.request();
     }
-
-    final androidImpl =
-        _plugin.resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>();
+    final androidImpl = _plugin.resolvePlatformSpecificImplementation<
+        AndroidFlutterLocalNotificationsPlugin>();
     await androidImpl?.requestNotificationsPermission();
     await androidImpl?.requestExactAlarmsPermission();
 
@@ -52,7 +49,7 @@ class NotificationService {
     const androidDetails = AndroidNotificationDetails(
       'reminders_channel',
       'Reminders',
-      channelDescription: 'Task reminders',
+      channelDescription: 'Task reminders from Mitra',
       importance: Importance.high,
       priority: Priority.high,
     );

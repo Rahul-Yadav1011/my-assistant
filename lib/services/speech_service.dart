@@ -16,10 +16,7 @@ class SpeechService {
     if (await Permission.microphone.isDenied) {
       await Permission.microphone.request();
     }
-    _ready = await _stt.initialize(
-      onError: (e) {},
-      onStatus: (_) {},
-    );
+    _ready = await _stt.initialize(onError: (e) {}, onStatus: (_) {});
     return _ready;
   }
 

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 
 class TtsService {
@@ -7,12 +8,23 @@ class TtsService {
   final FlutterTts _tts = FlutterTts();
   bool _ready = false;
 
+  final ValueNotifier<bool> isSpeaking = ValueNotifier(false);
+
   Future<void> init() async {
     if (_ready) return;
-    await _tts.setLanguage('en-IN');
+    try {
+      await _tts.setLanguage('en-IN');
+    } catch (_) {
+      await _tts.setLanguage('en-US');
+    }
     await _tts.setSpeechRate(0.5);
     await _tts.setPitch(1.0);
-    await _tts.awaitSpeakCompletion(true);
+
+    _tts.setStartHandler(() => isSpeaking.value = true);
+    _tts.setCompletionHandler(() => isSpeaking.value = false);
+    _tts.setCancelHandler(() => isSpeaking.value = false);
+    _tts.setErrorHandler((_) => isSpeaking.value = false);
+
     _ready = true;
   }
 
@@ -25,5 +37,6 @@ class TtsService {
 
   Future<void> stop() async {
     await _tts.stop();
+    isSpeaking.value = false;
   }
 }

@@ -1,15 +1,16 @@
-# My Assistant
+# Mitra v0.5
 
-Personal voice-driven Android assistant — tasks with reminders, voice in/out, LLM chat.
+Personal voice-driven Android assistant.
 
-## Build it
-
-You don't need Flutter on your laptop. Push to GitHub, get back an APK file.
-
-See `DEPLOY_GUIDE.md` for step-by-step instructions.
+## Features
+- Voice in/out (STT + TTS) with **Stop speaking** and **Cancel AI** buttons
+- Smart natural-language reminders (55+ phrasings understood)
+- Modern dark theme with custom voice-wave icon
+- Side drawer navigation
+- **News tab** — RSS from BBC, NDTV, The Hindu, Reuters, TOI, Hacker News
+- **Philosophy tab** — daily quote + browse Stoicism, Vedanta, Buddhism, Existentialism, Advaita
+- **Test notification** button in Settings to diagnose delivery issues
+- Groq primary + Gemini fallback (both free)
 
 ## Configure after install
-
-Open the app, tap settings (gear icon), paste:
-- **Gemini API key** — free at https://aistudio.google.com/apikey
-- **Groq API key** — optional fallback, free at https://console.groq.com/keys
+Open drawer → Settings → paste Groq key (from console.groq.com/keys) → Save

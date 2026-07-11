@@ -1,5 +1,4 @@
 import 'package:intl/intl.dart';
-
 import '../models/chat_message.dart';
 import '../models/task.dart';
 import 'command_parser.dart';
@@ -7,11 +6,11 @@ import 'database_service.dart';
 import 'llm_service.dart';
 import 'notification_service.dart';
 
-/// Single response object returned to the UI.
 class AssistantReply {
   final String text;
   final bool isFromLlm;
-  AssistantReply(this.text, {this.isFromLlm = false});
+  final bool wasCancelled;
+  AssistantReply(this.text, {this.isFromLlm = false, this.wasCancelled = false});
 }
 
 class AssistantController {
@@ -19,12 +18,17 @@ class AssistantController {
   static final AssistantController instance = AssistantController._();
 
   final List<ChatMessage> _history = [];
+  CancelToken? _currentCancel;
 
   List<ChatMessage> get history => List.unmodifiable(_history);
+  bool get isBusy => _currentCancel != null;
+
+  void cancelCurrent() {
+    _currentCancel?.cancel();
+  }
 
   Future<AssistantReply> handle(String input) async {
     _history.add(ChatMessage(role: MessageRole.user, content: input));
-
     final parsed = CommandParser.parse(input);
 
     AssistantReply reply;
@@ -41,9 +45,7 @@ class AssistantController {
         reply = await _handleLlm(input);
     }
 
-    _history.add(
-      ChatMessage(role: MessageRole.assistant, content: reply.text),
-    );
+    _history.add(ChatMessage(role: MessageRole.assistant, content: reply.text));
     return reply;
   }
 
@@ -57,16 +59,12 @@ class AssistantController {
       when: t.dueAt,
     );
     final whenLabel = _formatDue(t.dueAt);
-    return AssistantReply(
-      'Saved: "${t.title}". I will remind you $whenLabel.',
-    );
+    return AssistantReply('✓ Saved: "${t.title}". I will remind you $whenLabel.');
   }
 
   Future<AssistantReply> _handleListTasks() async {
     final tasks = await DatabaseService.instance.getPendingTasks();
-    if (tasks.isEmpty) {
-      return AssistantReply('You have no pending tasks.');
-    }
+    if (tasks.isEmpty) return AssistantReply('You have no pending tasks.');
     final buf = StringBuffer('You have ${tasks.length} pending task(s):\n');
     for (final t in tasks) {
       buf.writeln('#${t.id}: ${t.title} — ${_formatDue(t.dueAt)}');
@@ -91,30 +89,30 @@ class AssistantController {
   }
 
   Future<AssistantReply> _handleLlm(String input) async {
+    final cancel = CancelToken();
+    _currentCancel = cancel;
     try {
       final text = await LlmService.instance.chat(
         userMessage: input,
-        history: _history.length > 1
-            ? _history.sublist(0, _history.length - 1)
-            : <ChatMessage>[],
+        history: _history.length > 1 ? _history.sublist(0, _history.length - 1) : <ChatMessage>[],
+        cancel: cancel,
       );
       return AssistantReply(text, isFromLlm: true);
     } on LlmException catch (e) {
+      if (e.message.contains('Cancelled')) return AssistantReply('(cancelled)', wasCancelled: true);
       return AssistantReply(e.message);
     } catch (e) {
-      return AssistantReply('I could not reach the assistant brain: $e');
+      return AssistantReply('Could not reach the assistant brain: $e');
+    } finally {
+      _currentCancel = null;
     }
   }
 
   String _formatDue(DateTime when) {
     final now = DateTime.now();
-    final isToday = when.year == now.year &&
-        when.month == now.month &&
-        when.day == now.day;
+    final isToday = when.year == now.year && when.month == now.month && when.day == now.day;
     final tomorrow = now.add(const Duration(days: 1));
-    final isTomorrow = when.year == tomorrow.year &&
-        when.month == tomorrow.month &&
-        when.day == tomorrow.day;
+    final isTomorrow = when.year == tomorrow.year && when.month == tomorrow.month && when.day == tomorrow.day;
     final time = DateFormat('h:mm a').format(when);
     if (isToday) return 'today at $time';
     if (isTomorrow) return 'tomorrow at $time';

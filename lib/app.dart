@@ -1,47 +1,48 @@
 import 'package:flutter/material.dart';
-
 import 'screens/home_screen.dart';
-import 'screens/tasks_screen.dart';
+import 'services/settings_service.dart';
+import 'theme.dart';
 
-class MyAssistantApp extends StatelessWidget {
-  const MyAssistantApp({super.key});
+class MitraApp extends StatefulWidget {
+  const MitraApp({super.key});
+  @override
+  State<MitraApp> createState() => _MitraAppState();
+}
+
+class _MitraAppState extends State<MitraApp> {
+  ThemeChoice _theme = ThemeChoice.dark;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadTheme();
+  }
+
+  Future<void> _loadTheme() async {
+    final t = await SettingsService.instance.getTheme();
+    if (mounted) setState(() => _theme = t);
+  }
+
+  ThemeMode get _mode {
+    switch (_theme) {
+      case ThemeChoice.dark:
+        return ThemeMode.dark;
+      case ThemeChoice.light:
+        return ThemeMode.light;
+      case ThemeChoice.system:
+        return ThemeMode.system;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'My Assistant',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
-        useMaterial3: true,
-      ),
-      home: const _RootShell(),
+      title: 'Mitra',
+      themeMode: _mode,
+      theme: MitraTheme.light(),
+      darkTheme: MitraTheme.dark(),
+      home: const HomeScreen(),
       debugShowCheckedModeBanner: false,
-    );
-  }
-}
-
-class _RootShell extends StatefulWidget {
-  const _RootShell();
-  @override
-  State<_RootShell> createState() => _RootShellState();
-}
-
-class _RootShellState extends State<_RootShell> {
-  int _index = 0;
-  final _pages = const [HomeScreen(), TasksScreen()];
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: IndexedStack(index: _index, children: _pages),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _index,
-        onDestinationSelected: (i) => setState(() => _index = i),
-        destinations: const [
-          NavigationDestination(icon: Icon(Icons.assistant), label: 'Assistant'),
-          NavigationDestination(icon: Icon(Icons.checklist), label: 'Tasks'),
-        ],
-      ),
     );
   }
 }

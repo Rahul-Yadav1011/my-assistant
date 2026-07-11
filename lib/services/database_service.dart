@@ -1,11 +1,7 @@
 import 'dart:convert';
-
 import 'package:hive_flutter/hive_flutter.dart';
-
 import '../models/task.dart';
 
-/// Hive-based storage. Works identically on Android and Web (uses IndexedDB
-/// under the hood when targeting web).
 class DatabaseService {
   DatabaseService._();
   static final DatabaseService instance = DatabaseService._();
@@ -24,19 +20,13 @@ class DatabaseService {
   }
 
   Box<String> get _tasksBox {
-    final b = _box;
-    if (b == null) {
-      throw StateError('DatabaseService.init() not called');
-    }
-    return b;
+    if (_box == null) throw StateError('DatabaseService.init() not called');
+    return _box!;
   }
 
   Box<int> get _meta {
-    final b = _metaBox;
-    if (b == null) {
-      throw StateError('DatabaseService.init() not called');
-    }
-    return b;
+    if (_metaBox == null) throw StateError('DatabaseService.init() not called');
+    return _metaBox!;
   }
 
   int _nextId() {
@@ -70,9 +60,7 @@ class DatabaseService {
   }
 
   Future<void> updateTask(Task task) async {
-    if (task.id == null) {
-      throw ArgumentError('Cannot update task without id');
-    }
+    if (task.id == null) throw ArgumentError('Cannot update task without id');
     await _tasksBox.put(task.id.toString(), jsonEncode(task.toMap()));
   }
 

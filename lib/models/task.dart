@@ -33,25 +33,21 @@ class Task {
     );
   }
 
-  Map<String, Object?> toMap() {
-    return {
-      'id': id,
-      'title': title,
-      'notes': notes,
-      'due_at': dueAt.millisecondsSinceEpoch,
-      'done': done ? 1 : 0,
-      'created_at': createdAt.millisecondsSinceEpoch,
-    };
-  }
+  Map<String, Object?> toMap() => {
+        'id': id,
+        'title': title,
+        'notes': notes,
+        'due_at': dueAt.millisecondsSinceEpoch,
+        'done': done ? 1 : 0,
+        'created_at': createdAt.millisecondsSinceEpoch,
+      };
 
-  static Task fromMap(Map<String, Object?> map) {
-    return Task(
-      id: map['id'] as int?,
-      title: map['title'] as String,
-      notes: map['notes'] as String?,
-      dueAt: DateTime.fromMillisecondsSinceEpoch(map['due_at'] as int),
-      done: (map['done'] as int) == 1,
-      createdAt: DateTime.fromMillisecondsSinceEpoch(map['created_at'] as int),
-    );
-  }
+  static Task fromMap(Map<String, Object?> map) => Task(
+        id: map['id'] as int?,
+        title: map['title'] as String,
+        notes: map['notes'] as String?,
+        dueAt: DateTime.fromMillisecondsSinceEpoch(map['due_at'] as int),
+        done: (map['done'] as int) == 1,
+        createdAt: DateTime.fromMillisecondsSinceEpoch(map['created_at'] as int),
+      );
 }
