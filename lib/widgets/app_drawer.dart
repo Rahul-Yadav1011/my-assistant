@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import '../screens/models_screen.dart';
 import '../screens/news_screen.dart';
 import '../screens/philosophy_screen.dart';
 import '../screens/settings_screen.dart';
-import '../screens/tasks_screen.dart';
 import '../theme.dart';
 
 class AppDrawer extends StatelessWidget {
+  /// 0 Assistant, 2 AI Models, 3 News, 4 Philosophy
   final int currentIndex;
   final VoidCallback? onAssistantTap;
   const AppDrawer({super.key, required this.currentIndex, this.onAssistantTap});
@@ -26,9 +27,9 @@ class AppDrawer extends StatelessWidget {
               onAssistantTap?.call();
             },
           ),
-          _NavItem(icon: Icons.checklist, label: 'Tasks', active: currentIndex == 1, onTap: () => _push(context, const TasksScreen())),
-          _NavItem(icon: Icons.newspaper, label: 'News', active: currentIndex == 2, onTap: () => _push(context, const NewsScreen())),
-          _NavItem(icon: Icons.auto_awesome, label: 'Philosophy', active: currentIndex == 3, onTap: () => _push(context, const PhilosophyScreen())),
+          _NavItem(icon: Icons.memory, label: 'AI Models', active: currentIndex == 2, onTap: () => _push(context, const ModelsScreen())),
+          _NavItem(icon: Icons.newspaper, label: 'News', active: currentIndex == 3, onTap: () => _push(context, const NewsScreen())),
+          _NavItem(icon: Icons.auto_awesome, label: 'Philosophy', active: currentIndex == 4, onTap: () => _push(context, const PhilosophyScreen())),
           const Spacer(),
           const Divider(height: 1),
           _NavItem(icon: Icons.settings_outlined, label: 'Settings', active: false, onTap: () => _push(context, const SettingsScreen())),
@@ -67,7 +68,7 @@ class _Header extends StatelessWidget {
           const Spacer(),
           const Text('Mitra', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 24, letterSpacing: 0.5)),
           const SizedBox(height: 4),
-          Text('Your personal assistant', style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 13)),
+          Text('Your personal AI', style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 13)),
         ],
       ),
     );

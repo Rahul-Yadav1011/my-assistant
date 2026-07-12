@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/chat_message.dart';
 import '../services/assistant_controller.dart';
+import '../services/settings_service.dart';
 import '../services/speech_service.dart';
 import '../services/tts_service.dart';
 import '../theme.dart';
@@ -18,12 +19,19 @@ class _HomeScreenState extends State<HomeScreen> {
   final _scrollCtrl = ScrollController();
   String _liveTranscript = '';
   bool _busy = false;
+  EngineChoice _engine = EngineChoice.groq;
 
   @override
   void initState() {
     super.initState();
     SpeechService.instance.init();
     TtsService.instance.init();
+    _loadEngine();
+  }
+
+  Future<void> _loadEngine() async {
+    final e = await SettingsService.instance.getEngine();
+    if (mounted) setState(() => _engine = e);
   }
 
   @override
@@ -90,6 +98,12 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         flexibleSpace: Container(decoration: const BoxDecoration(gradient: MitraTheme.headerGradient)),
         title: const Row(children: [Icon(Icons.graphic_eq, size: 22), SizedBox(width: 8), Text('Mitra')]),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: Center(child: _EngineChip(engine: _engine)),
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -166,7 +180,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       controller: _textCtrl,
                       enabled: !_busy,
                       onSubmitted: _send,
-                      decoration: const InputDecoration(hintText: 'Type or tap mic. Try: "remind me at 9 pm"'),
+                      decoration: const InputDecoration(hintText: 'Ask me anything…'),
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -181,15 +195,41 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
+class _EngineChip extends StatelessWidget {
+  final EngineChoice engine;
+  const _EngineChip({required this.engine});
+
+  @override
+  Widget build(BuildContext context) {
+    final online = engine == EngineChoice.groq;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.12),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white.withOpacity(0.2)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(online ? Icons.cloud_outlined : Icons.smartphone, size: 14, color: Colors.white),
+          const SizedBox(width: 5),
+          Text(online ? 'Groq' : 'Offline', style: const TextStyle(fontSize: 12, color: Colors.white, fontWeight: FontWeight.w600)),
+        ],
+      ),
+    );
+  }
+}
+
 class _EmptyState extends StatelessWidget {
   const _EmptyState();
   @override
   Widget build(BuildContext context) {
     final suggestions = [
-      '"Remind me to call mom tomorrow at 6 pm"',
-      '"Notify me after 5 minutes to drink water"',
-      '"Show my tasks"',
+      '"Explain quantum entanglement simply"',
       '"What do Stoics say about anxiety?"',
+      '"Give me a 30-day plan to learn Rust"',
+      '"Summarize the Bhagavad Gita\'s core idea"',
     ];
     return Center(
       child: Padding(
@@ -208,9 +248,9 @@ class _EmptyState extends StatelessWidget {
               child: const Icon(Icons.graphic_eq, color: Colors.white, size: 36),
             ),
             const SizedBox(height: 20),
-            const Text('Hi, I\'m Mitra.', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700)),
+            const Text("Hi, I'm Mitra.", style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700)),
             const SizedBox(height: 6),
-            Text('Tap the mic or type below. Try:', style: TextStyle(color: Colors.white.withOpacity(0.6))),
+            Text('Your personal AI. Ask me anything — try:', style: TextStyle(color: Colors.white.withOpacity(0.6))),
             const SizedBox(height: 12),
             ...suggestions.map((s) => Padding(
                   padding: const EdgeInsets.symmetric(vertical: 3),

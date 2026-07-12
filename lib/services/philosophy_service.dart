@@ -15,6 +15,12 @@ class PhilosophyService {
 
   List<PhilosophySchool> allSchools() => List.of(philosophySchools);
 
+  List<Thinker> allThinkers() => List.of(thinkers);
+
+  List<Thinker> thinkersBySchool(String school) {
+    return thinkers.where((t) => t.school == school).toList(growable: false);
+  }
+
   int _dayOfYear(DateTime d) {
     final start = DateTime(d.year, 1, 1);
     return d.difference(start).inDays;

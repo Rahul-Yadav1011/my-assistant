@@ -30,7 +30,7 @@ class _NewsScreenState extends State<NewsScreen> with SingleTickerProviderStateM
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: const AppDrawer(currentIndex: 2),
+      drawer: const AppDrawer(currentIndex: 3),
       appBar: AppBar(
         flexibleSpace: Container(decoration: const BoxDecoration(gradient: MitraTheme.headerGradient)),
         title: const Text('News'),

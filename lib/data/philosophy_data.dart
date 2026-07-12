@@ -5,6 +5,14 @@ class PhilosophyEntry {
   const PhilosophyEntry(this.text, this.author, this.school);
 }
 
+class Thinker {
+  final String name;
+  final String lived;
+  final String school;
+  final String bio;
+  const Thinker(this.name, this.lived, this.school, this.bio);
+}
+
 class PhilosophySchool {
   final String name;
   final String origin;
@@ -62,7 +70,7 @@ const philosophySchools = <PhilosophySchool>[
     name: 'Existentialism',
     origin: 'Europe, 19th–20th century',
     summary:
-        'A 20th-century philosophy emphasizing individual freedom, responsibility, and the search for meaning in an indifferent universe. Existence precedes essence.',
+        'A philosophy emphasizing individual freedom, responsibility, and the search for meaning in an indifferent universe. Existence precedes essence.',
     coreIdeas: [
       'Existence precedes essence: you create meaning through choices.',
       'Radical freedom comes with radical responsibility — and existential anxiety.',
@@ -84,6 +92,68 @@ const philosophySchools = <PhilosophySchool>[
       'Liberation is the direct recognition that you were never bound.',
     ],
   ),
+  PhilosophySchool(
+    name: 'Taoism',
+    origin: 'China, ~400 BCE (Laozi, Zhuangzi)',
+    summary:
+        'A Chinese philosophy of living in harmony with the Tao — the natural, effortless way of the universe. Strength comes from yielding, wisdom from simplicity.',
+    coreIdeas: [
+      'The Tao that can be named is not the eternal Tao — reality exceeds words.',
+      'Wu wei: effortless action, moving with the grain of things rather than forcing.',
+      'Simplicity and humility outlast rigid ambition — water wears down rock.',
+      'Opposites define each other (yin & yang); balance, not conquest, is the aim.',
+      'The sage leads by not dominating and achieves by not grasping.',
+    ],
+  ),
+  PhilosophySchool(
+    name: 'Confucianism',
+    origin: 'China, ~500 BCE (Confucius)',
+    summary:
+        'An ethical and social philosophy focused on cultivating virtue, right relationships, and harmony in society through personal character and respect.',
+    coreIdeas: [
+      'Ren (benevolence): cultivate genuine care for others.',
+      'Li (propriety): act with the right conduct and respect in each relationship.',
+      'The family and social roles are the training ground for virtue.',
+      'Lead by moral example, not force — character shapes society.',
+      'Lifelong learning and self-cultivation are duties, not options.',
+    ],
+  ),
+  PhilosophySchool(
+    name: 'Absurdism',
+    origin: 'Europe, 20th century (Albert Camus)',
+    summary:
+        'The view that humans seek meaning in a universe that offers none, and that we should respond not with despair or false hope, but with rebellion, freedom, and passion for life.',
+    coreIdeas: [
+      'The Absurd is the clash between our search for meaning and the silent universe.',
+      'Neither suicide nor blind faith resolves the Absurd — both are escapes.',
+      'Revolt: live fully and consciously in spite of meaninglessness.',
+      'Freedom: without preset meaning, you are free to define your own.',
+      'Imagine Sisyphus happy — the struggle itself can fill a life.',
+    ],
+  ),
+];
+
+const thinkers = <Thinker>[
+  Thinker('Marcus Aurelius', '121–180 CE', 'Stoicism',
+      'Roman emperor and Stoic philosopher whose private journal, "Meditations", remains one of the most-read works on self-discipline and equanimity.'),
+  Thinker('Epictetus', '~50–135 CE', 'Stoicism',
+      'Born a slave, became a revered Stoic teacher. Taught that freedom comes from mastering our judgments, not our circumstances.'),
+  Thinker('Seneca', '~4 BCE–65 CE', 'Stoicism',
+      'Roman statesman and writer whose letters on grief, time, and anger turned Stoic theory into practical daily counsel.'),
+  Thinker('Adi Shankaracharya', '~700–750 CE', 'Advaita',
+      'Consolidated Advaita Vedanta, arguing that the individual self and ultimate reality are one, and that liberation is realizing this directly.'),
+  Thinker('The Buddha', '~563–483 BCE', 'Buddhism',
+      'Siddhartha Gautama, who taught the Four Noble Truths and the Eightfold Path as a practical route out of suffering.'),
+  Thinker('Laozi', '~6th century BCE', 'Taoism',
+      'Semi-legendary author of the Tao Te Ching, foundational text of Taoism, teaching harmony with the natural way and the power of yielding.'),
+  Thinker('Confucius', '551–479 BCE', 'Confucianism',
+      'Chinese teacher whose emphasis on virtue, respect, and right relationships shaped East Asian ethics for over two millennia.'),
+  Thinker('Jean-Paul Sartre', '1905–1980', 'Existentialism',
+      'French existentialist who argued that we are "condemned to be free" and wholly responsible for the meaning we create.'),
+  Thinker('Albert Camus', '1913–1960', 'Absurdism',
+      'French-Algerian writer who framed the Absurd and urged us to live with revolt, freedom, and passion despite the lack of inherent meaning.'),
+  Thinker('Friedrich Nietzsche', '1844–1900', 'Existentialism',
+      'German philosopher who probed nihilism, the "will to power", and self-overcoming, urging us to create our own values.'),
 ];
 
 const philosophyQuotes = <PhilosophyEntry>[
@@ -92,6 +162,7 @@ const philosophyQuotes = <PhilosophyEntry>[
   PhilosophyEntry('We suffer more often in imagination than in reality.', 'Seneca', 'Stoicism'),
   PhilosophyEntry('Waste no more time arguing what a good man should be. Be one.', 'Marcus Aurelius', 'Stoicism'),
   PhilosophyEntry('It is not what happens to you, but how you react to it that matters.', 'Epictetus', 'Stoicism'),
+  PhilosophyEntry('The happiness of your life depends upon the quality of your thoughts.', 'Marcus Aurelius', 'Stoicism'),
   PhilosophyEntry('You are not the body, you are not the mind. You are the witness of both.', 'Ramana Maharshi', 'Advaita'),
   PhilosophyEntry('Tat tvam asi — That thou art.', 'Chandogya Upanishad', 'Vedanta'),
   PhilosophyEntry('The mind is restless, but it can be controlled by practice and detachment.', 'Bhagavad Gita', 'Vedanta'),
@@ -103,7 +174,19 @@ const philosophyQuotes = <PhilosophyEntry>[
   PhilosophyEntry('You yourself, as much as anybody in the entire universe, deserve your love and affection.', 'The Buddha', 'Buddhism'),
   PhilosophyEntry('Peace comes from within. Do not seek it without.', 'The Buddha', 'Buddhism'),
   PhilosophyEntry('Man is condemned to be free; because once thrown into the world, he is responsible for everything he does.', 'Jean-Paul Sartre', 'Existentialism'),
-  PhilosophyEntry('One must imagine Sisyphus happy.', 'Albert Camus', 'Existentialism'),
+  PhilosophyEntry('One must imagine Sisyphus happy.', 'Albert Camus', 'Absurdism'),
   PhilosophyEntry('He who has a why to live for can bear almost any how.', 'Friedrich Nietzsche', 'Existentialism'),
   PhilosophyEntry('Life can only be understood backwards; but it must be lived forwards.', 'Søren Kierkegaard', 'Existentialism'),
+  PhilosophyEntry('The journey of a thousand miles begins with a single step.', 'Laozi', 'Taoism'),
+  PhilosophyEntry('Nature does not hurry, yet everything is accomplished.', 'Laozi', 'Taoism'),
+  PhilosophyEntry('When I let go of what I am, I become what I might be.', 'Laozi', 'Taoism'),
+  PhilosophyEntry('The flame that burns twice as bright burns half as long.', 'Laozi', 'Taoism'),
+  PhilosophyEntry('It does not matter how slowly you go as long as you do not stop.', 'Confucius', 'Confucianism'),
+  PhilosophyEntry('The man who moves a mountain begins by carrying away small stones.', 'Confucius', 'Confucianism'),
+  PhilosophyEntry('Our greatest glory is not in never falling, but in rising every time we fall.', 'Confucius', 'Confucianism'),
+  PhilosophyEntry('When it is obvious that the goals cannot be reached, adjust the action steps.', 'Confucius', 'Confucianism'),
+  PhilosophyEntry('In the midst of winter, I found there was, within me, an invincible summer.', 'Albert Camus', 'Absurdism'),
+  PhilosophyEntry('You will never be happy if you continue to search for what happiness consists of.', 'Albert Camus', 'Absurdism'),
+  PhilosophyEntry('That which does not kill us makes us stronger.', 'Friedrich Nietzsche', 'Existentialism'),
+  PhilosophyEntry('The wound is the place where the Light enters you.', 'Rumi', 'Vedanta'),
 ];
