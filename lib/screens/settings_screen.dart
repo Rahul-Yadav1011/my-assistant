@@ -162,7 +162,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const SizedBox(height: 32),
           FilledButton(onPressed: _saving ? null : _save, child: Text(_saving ? 'Saving…' : 'Save')),
           const SizedBox(height: 24),
-          Text('Mitra v0.6 · Built with Flutter', textAlign: TextAlign.center, style: TextStyle(color: Colors.white.withOpacity(0.3))),
+          Text('Mitra v0.7 · Built with Flutter', textAlign: TextAlign.center, style: TextStyle(color: Colors.white.withOpacity(0.3))),
         ],
       ),
     );

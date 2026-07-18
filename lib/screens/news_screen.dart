@@ -55,7 +55,10 @@ class _CategoryFeed extends StatefulWidget {
 }
 
 class _CategoryFeedState extends State<_CategoryFeed> with AutomaticKeepAliveClientMixin {
-  Future<List<NewsItem>>? _future;
+  bool _loading = true;
+  String? _error;
+  List<NewsItem> _items = [];
+  int _dismissedCount = 0;
 
   @override
   bool get wantKeepAlive => true;
@@ -66,8 +69,27 @@ class _CategoryFeedState extends State<_CategoryFeed> with AutomaticKeepAliveCli
     _load();
   }
 
-  void _load() {
-    setState(() => _future = NewsService.instance.fetchCategory(widget.category));
+  Future<void> _load() async {
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    try {
+      final items = await NewsService.instance.fetchCategory(widget.category);
+      if (!mounted) return;
+      setState(() {
+        _items = items;
+        _dismissedCount = 0;
+        _loading = false;
+        _error = items.isEmpty ? 'No news fetched. Check your internet?' : null;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _loading = false;
+        _error = e.toString();
+      });
+    }
   }
 
   Future<void> _open(String? url) async {
@@ -77,58 +99,154 @@ class _CategoryFeedState extends State<_CategoryFeed> with AutomaticKeepAliveCli
     await launchUrl(uri, mode: LaunchMode.externalApplication);
   }
 
+  void _dismiss(NewsItem item) {
+    setState(() {
+      _items.remove(item);
+      _dismissedCount++;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return RefreshIndicator(
-      onRefresh: () async => _load(),
-      child: FutureBuilder<List<NewsItem>>(
-        future: _future,
-        builder: (_, snap) {
-          if (snap.connectionState != ConnectionState.done) return const Center(child: CircularProgressIndicator());
-          if (snap.hasError) return _Error(message: snap.error.toString(), onRetry: _load);
-          final items = snap.data ?? const [];
-          if (items.isEmpty) return _Error(message: 'No news fetched. Check your internet?', onRetry: _load);
-          return ListView.builder(
-            padding: const EdgeInsets.all(12),
-            itemCount: items.length,
-            itemBuilder: (_, i) {
-              final n = items[i];
-              return Card(
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(16),
-                  onTap: () => _open(n.link),
-                  child: Padding(
-                    padding: const EdgeInsets.all(14),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(n.title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15, height: 1.35)),
-                        if (n.description != null) ...[
-                          const SizedBox(height: 8),
-                          Text(n.description!, style: TextStyle(color: Colors.white.withOpacity(0.65), fontSize: 13, height: 1.4), maxLines: 3, overflow: TextOverflow.ellipsis),
-                        ],
-                        const SizedBox(height: 10),
-                        Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                              decoration: BoxDecoration(color: MitraTheme.purple.withOpacity(0.20), borderRadius: BorderRadius.circular(6)),
-                              child: Text(n.source, style: const TextStyle(fontSize: 11, color: MitraTheme.purple, fontWeight: FontWeight.w600)),
-                            ),
-                            const Spacer(),
-                            if (n.pubDate != null)
-                              Text(_relative(n.pubDate!), style: TextStyle(fontSize: 11, color: Colors.white.withOpacity(0.4))),
-                          ],
-                        ),
-                      ],
+
+    if (_loading) return const Center(child: CircularProgressIndicator());
+    if (_error != null) return _ErrorView(message: _error!, onRetry: _load);
+
+    if (_items.isEmpty) {
+      // Everything read/dismissed — friendly empty state with refresh.
+      return RefreshIndicator(
+        onRefresh: _load,
+        child: ListView(
+          children: [
+            const SizedBox(height: 100),
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  children: [
+                    const Icon(Icons.check_circle_outline, size: 64, color: MitraTheme.cyan),
+                    const SizedBox(height: 12),
+                    Text(
+                      _dismissedCount > 0 ? "You're all caught up!" : 'No news right now.',
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                     ),
-                  ),
+                    const SizedBox(height: 6),
+                    Text('Pull down or tap refresh for more.',
+                        style: TextStyle(color: Colors.white.withOpacity(0.5))),
+                    const SizedBox(height: 16),
+                    FilledButton.icon(onPressed: _load, icon: const Icon(Icons.refresh), label: const Text('Refresh')),
+                  ],
                 ),
-              );
-            },
-          );
-        },
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return RefreshIndicator(
+      onRefresh: _load,
+      child: Column(
+        children: [
+          // Little hint bar showing progress + swipe tip
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 10, 14, 0),
+            child: Row(
+              children: [
+                Icon(Icons.swipe, size: 15, color: Colors.white.withOpacity(0.4)),
+                const SizedBox(width: 6),
+                Text('Swipe a card away as you read',
+                    style: TextStyle(fontSize: 12, color: Colors.white.withOpacity(0.4))),
+                const Spacer(),
+                Text('${_items.length} left',
+                    style: TextStyle(fontSize: 12, color: Colors.white.withOpacity(0.4))),
+              ],
+            ),
+          ),
+          Expanded(
+            child: ListView.builder(
+              padding: const EdgeInsets.all(12),
+              itemCount: _items.length,
+              itemBuilder: (_, i) {
+                final n = _items[i];
+                return Dismissible(
+                  key: ValueKey('${n.source}-${n.title}-$i'),
+                  direction: DismissDirection.horizontal,
+                  background: _swipeBg(Alignment.centerLeft),
+                  secondaryBackground: _swipeBg(Alignment.centerRight),
+                  onDismissed: (_) => _dismiss(n),
+                  child: _NewsCard(item: n, onTap: () => _open(n.link)),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _swipeBg(Alignment align) {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 6),
+      decoration: BoxDecoration(
+        color: MitraTheme.cyan.withOpacity(0.18),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      alignment: align,
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: const Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.check, color: MitraTheme.cyan, size: 20),
+          SizedBox(width: 6),
+          Text('Mark read', style: TextStyle(color: MitraTheme.cyan, fontWeight: FontWeight.w600)),
+        ],
+      ),
+    );
+  }
+}
+
+class _NewsCard extends StatelessWidget {
+  final NewsItem item;
+  final VoidCallback onTap;
+  const _NewsCard({required this.item, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(item.title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15, height: 1.35)),
+              if (item.description != null) ...[
+                const SizedBox(height: 8),
+                Text(item.description!,
+                    style: TextStyle(color: Colors.white.withOpacity(0.65), fontSize: 13, height: 1.4),
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis),
+              ],
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(color: MitraTheme.purple.withOpacity(0.20), borderRadius: BorderRadius.circular(6)),
+                    child: Text(item.source, style: const TextStyle(fontSize: 11, color: MitraTheme.purple, fontWeight: FontWeight.w600)),
+                  ),
+                  const Spacer(),
+                  if (item.pubDate != null)
+                    Text(_relative(item.pubDate!), style: TextStyle(fontSize: 11, color: Colors.white.withOpacity(0.4))),
+                ],
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -143,10 +261,10 @@ class _CategoryFeedState extends State<_CategoryFeed> with AutomaticKeepAliveCli
   }
 }
 
-class _Error extends StatelessWidget {
+class _ErrorView extends StatelessWidget {
   final String message;
   final VoidCallback onRetry;
-  const _Error({required this.message, required this.onRetry});
+  const _ErrorView({required this.message, required this.onRetry});
 
   @override
   Widget build(BuildContext context) {

@@ -1,22 +1,22 @@
-# Mitra v0.6
+# Mitra v0.7
 
 Your personal AI assistant — ask anything, online or fully offline.
 
-## What's new in v0.6
-- Pivoted from "task manager" to a pure AI assistant
-- Hybrid engine: Groq (online) OR on-device model (offline) — user picks in Settings, switch anytime
-- New "AI Models" screen: download curated offline models (Gemma 3 1B/4B, Qwen 2.5 1.5B), pick which is active, advanced custom-URL box for power users
-- Engine chip on chat screen shows which AI is active
-- Gemini removed (Groq is the online option)
-- Philosophy expanded: 8 schools (added Taoism, Confucianism, Absurdism), a Thinkers tab with 10 philosophers, and 32 quotes
-- Tasks/reminders retired from the main flow (code kept for a future "advanced" module)
+## What's new in v0.7
+- Brighter, livelier app icon (violet → sky-blue gradient)
+- Fixed side drawer: tapping "Assistant" now reliably returns to the home chat from any screen; cleaner drawer UI
+- AI Models expanded to 10 curated offline models, grouped by size tier:
+  - Tiny (< 1 GB): Gemma 3 1B, Llama 3.2 1B, SmolLM2 1.7B, Qwen 2.5 0.5B
+  - Small (1–2 GB): Qwen 2.5 1.5B, Gemma 2 2B, Llama 3.2 3B
+  - Capable (2 GB+): Phi-3.5 Mini, Gemma 3 4B, Qwen 2.5 3B
+- News: swipe any card left or right to mark it read; the list updates live with a "X left" counter and an "all caught up" state
 
 ## Engines
-- **Groq (online):** fast, smartest answers. Needs internet + free API key from console.groq.com/keys
-- **On-device (offline):** private, no internet. Download a model first in AI Models.
+- Groq (online): fast, smartest. Needs internet + free key from console.groq.com/keys
+- On-device (offline): private, no internet. Download a model in AI Models first.
 
-Note: on-device inference UI + download flow is in this build; the actual local
-inference engine is wired in the next update. Online (Groq) chat works now.
+Note: the on-device download + inference engine is wired in an upcoming update;
+the full offline UI/flow is present now. Online (Groq) chat works today.
 
 ## Configure after install
-Drawer → Settings → paste Groq key → Save. Or drawer → AI Models → download an offline model.
+Drawer → Settings → paste Groq key → Save. Or drawer → AI Models → pick & download an offline model.

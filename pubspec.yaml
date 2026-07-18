@@ -1,7 +1,7 @@
 name: mitra
 description: "Mitra — your personal voice-driven assistant."
 publish_to: 'none'
-version: 0.6.0+9
+version: 0.7.0+10
 
 environment:
   sdk: ">=3.3.0 <4.0.0"
@@ -41,5 +41,5 @@ flutter_launcher_icons:
   android: true
   ios: false
   image_path: "assets/icon.png"
-  adaptive_icon_background: "#1a1033"
+  adaptive_icon_background: "#6366F1"
   adaptive_icon_foreground: "assets/icon_foreground.png"

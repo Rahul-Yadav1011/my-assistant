@@ -89,12 +89,25 @@ class _ModelsScreenState extends State<ModelsScreen> {
             'Download a model once, then chat fully offline. Bigger models are smarter but need a newer phone.',
             style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 13),
           ),
-          const SizedBox(height: 12),
-          ...ModelCatalog.models.map((m) => _ModelCard(
-                model: m,
-                isActive: _activeModelId == m.id,
-                onSetActive: () => _setActive(m.id),
-              )),
+          const SizedBox(height: 8),
+          ...ModelCatalog.tiers.expand((tier) {
+            final tierModels = ModelCatalog.byTier(tier.id);
+            return [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(2, 18, 2, 2),
+                child: Text(tier.title, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: MitraTheme.cyan)),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(2, 0, 2, 8),
+                child: Text(tier.subtitle, style: TextStyle(fontSize: 12, color: Colors.white.withOpacity(0.5))),
+              ),
+              ...tierModels.map((m) => _ModelCard(
+                    model: m,
+                    isActive: _activeModelId == m.id,
+                    onSetActive: () => _setActive(m.id),
+                  )),
+            ];
+          }),
           const SizedBox(height: 16),
           _advancedSection(),
           const SizedBox(height: 24),

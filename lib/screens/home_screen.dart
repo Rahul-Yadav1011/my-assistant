@@ -94,7 +94,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final listening = SpeechService.instance.isListening;
 
     return Scaffold(
-      drawer: AppDrawer(currentIndex: 0, onAssistantTap: () {}),
+      drawer: const AppDrawer(currentIndex: 0),
       appBar: AppBar(
         flexibleSpace: Container(decoration: const BoxDecoration(gradient: MitraTheme.headerGradient)),
         title: const Row(children: [Icon(Icons.graphic_eq, size: 22), SizedBox(width: 8), Text('Mitra')]),
